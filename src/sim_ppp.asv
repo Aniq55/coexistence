@@ -1,0 +1,36 @@
+R = 100;
+
+lambda_Z = 0.001;   % Backhaul MBS
+lambda_C = 0.004;    % cellular SBS
+lambda_W = 0.005;    % WiFi APs
+
+rho = 10;
+
+
+[r_Z, theta_Z] = PPP_gen(lambda_Z, R);
+[r_C, theta_C] = PPP_gen(lambda_C, R);
+[r_W, theta_W] = PPP_gen(lambda_W, R);
+% 
+% x = r.*cos(theta);
+% y = r.*sin(theta);
+% 
+% 
+% scatter(x,y)
+
+figure(1);
+polar(theta_Z, r_Z, 'k^')
+hold on;
+polar(theta_C, r_C, 'bx')
+polar(theta_W, r_W, 'r+')
+legend('Incumbent User','Cellular BS','WiFi AP')
+
+%%
+figure(2);
+[x_Z, y_Z] = PPP_gen2(lambda_Z, R, R);
+[x_C, y_C] = PPP_gen2(lambda_C, R, R);
+[x_W, y_W] = PPP_gen2(lamnda_W, R, R);
+
+scatter(x_Z, y_Z, 'k^');
+hold on;
+scatter(x_C, y_C, 'bx');
+scatter(x_W, y_W, 'r+');

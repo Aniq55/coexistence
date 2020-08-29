@@ -3,8 +3,8 @@
 function [r, theta] = PPP_gen(lambda, R)
     area = pi*R*R;
     n = poissrnd(lambda*area);
-    r = zeros(1,n);
-    theta = zeros(1,n);
+    r = zeros(n,1);
+    theta = zeros(n,1);
     
     for i=1:n
         % draw uniform numbers
