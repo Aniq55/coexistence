@@ -1,32 +1,39 @@
-R = 100;
+L = 100*1e3;    % 100 km
 
-lambda_Z = 0.001;   % Backhaul MBS
-lambda_C = 0.002;    % cellular SBS
-lambda_W = 0.005;    % WiFi APs
+
+lambda_Z = 10/1e9;   % Backhaul MBS
+lambda_C = 20/1e9;   % cellular SBS
+lambda_W = 40/1e9;   % WiFi APs
 
 rho = 10;
 
 
-[r_Z, theta_Z] = PPP_gen(lambda_Z, R);
-[r_C, theta_C] = PPP_gen(lambda_C, R);
-[r_W, theta_W] = PPP_gen(lambda_W, R);
+
+
+[xz, yz] = PPP_gen_xy(lambda_Z, L, L);
+[xc, yc] = PPP_gen_xy(lambda_C, L, L);
+[xw, yw] = PPP_gen_xy(lambda_W, L, L);
 
 
 figure(1);
-polar(theta_Z, r_Z, 'k^')
 hold on;
-polar(theta_C, r_C, 'bx')
-polar(theta_W, r_W, 'r+')
+
+scatter(xz, yz);
+scatter(xc, yc);
+scatter(xw, yw);
 legend('Incumbent User','Cellular BS','WiFi AP')
 
 
-[r_Z, theta_Z] = PPP_gen2(lambda_Z, R);
-[r_C, theta_C] = PPP_gen2(lambda_C, R);
-[r_W, theta_W] = PPP_gen2(lambda_W, R);
 
-figure(2);
-polar(theta_Z, r_Z, 'k^')
-hold on;
-polar(theta_C, r_C, 'bx')
-polar(theta_W, r_W, 'r+')
-legend('Incumbent User','Cellular BS','WiFi AP')
+
+
+
+
+%%here we compute the distances between all the laser beam directors and the origin.
+% distances_to_origin=abs(x+1j*y); 
+ 
+%%here we search for the nearest oint to the origin (contact distance from the origin)
+% nearest_point_index=find(distances_to_origin==min(distances_to_origin)); 
+
+    
+

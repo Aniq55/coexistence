@@ -1,5 +1,6 @@
+% Poisson Point Process
 
-function [r, theta] = PPP_gen2(lambda, R)
+function [r, theta] = PPP_gen_polar(lambda, R)
     area = pi*R*R;
     n = poissrnd(lambda*area);
     
