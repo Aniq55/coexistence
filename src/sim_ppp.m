@@ -1,39 +1,155 @@
-L = 100*1e3;    % 100 km
+clc;
+clear all;
+
+%% Define constants
+
+L = 10*1e3;    % 10 km
 
 
-lambda_Z = 10/1e9;   % Backhaul MBS
-lambda_C = 20/1e9;   % cellular SBS
-lambda_W = 40/1e9;   % WiFi APs
+lambda_z = 1/1e6;   % Backhaul MBS
+lambda_c = 20/1e6;   % cellular SBS
+lambda_w = 40/1e6;   % WiFi APs
 
-rho = 10;
+rho = 200;  % radius of the exclusion zone
+rho_w = 20; % radius of the WiFi PCP disk
+
+% Transmit powers
+p_z = 1;
+p_c = 1;
+p_w = 1;
+
+alpha = 3; % path-loss coefficient
+
+% receiver thermal noise
+noise_c= 1e-15;
+noise_w= 1e-14;
+
+n_deployments = 100;
+n_iterations = 100;
+n_observations = n_deployments*n_iterations;
+
+SINR_c = zeros(1, n_observations);
+
+%% Generate PPPs:
+
+% ITERATE: change deployment
+for deployment= 1:n_deployments
+
+[Xz, Yz] = PPP_gen_xy(lambda_z, L, L);  % Incumbent Users
+[xc, yc] = PPP_gen_xy(lambda_c, L, L);  % Cellulat Base Stations
+[xw, yw] = PPP_gen_xy(lambda_w, L, L);  % WiFi Access Points
+
+n_z = length(Xz);
+n_c = length(xc);
+n_w = length(xw);
 
 
+%% Generate PHPs:
+
+Xc = [];
+Yc = [];
+for i=1:n_c
+    if sum ( sqrt((Xz - xc(i)).^2 + (Yz - yc(i)).^2) < rho) == 0
+        % the point i lies out of an exclusion zone
+        Xc = [Xc; xc(i)];
+        Yc = [Yc; yc(i)];
+    end
+end
+
+n_c = length(Xc);
 
 
-[xz, yz] = PPP_gen_xy(lambda_Z, L, L);
-[xc, yc] = PPP_gen_xy(lambda_C, L, L);
-[xw, yw] = PPP_gen_xy(lambda_W, L, L);
+Xw = [];
+Yw = [];
+for i=1:n_w
+    if sum ( sqrt((Xz - xw(i)).^2 + (Yz - yw(i)).^2) < rho) == 0
+        % the point i lies out of an exclusion zone
+        Xw = [Xw; xw(i)];
+        Yw = [Yw; yw(i)];
+    end
+end
+n_w = length(Xw);
+%% Calculating Interference:
+
+% SINR for Cellular Users:
+
+% assume that the cellular user is at the origin:
+R_c = abs(Xc + 1j*Yc);
+R_w = abs(Xw + 1j*Yw);
+R_z = abs(Xz + 1j*Yz)';
+
+B_0_index = find(R_c == min(R_c));
+
+% ITERATE: change fading
+
+    for iteration = 1:n_iterations
+        I_c_vector = p_c*exprnd(1, n_c, 1).*R_c.^(-alpha);
+        received_power_c = I_c_vector(B_0_index);
+        I_c = sum(I_c_vector) - received_power_c;
 
 
-figure(1);
+        I_w = sum(p_w*exprnd(1, n_w, 1).*R_w.^(-alpha));
+        I_z = sum(p_z*exprnd(1, n_z, 1).*R_z.^(-alpha));
+
+        i = (deployment-1)*n_iterations + iteration;
+        SINR_c(i) = received_power_c/(noise_c + I_c + I_w);
+    end
+end
+
+%%
+[f, x] = ecdf(SINR_c);
+
+
+bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
+bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
+
+beta = 2/alpha;
+
+%%
+
+SINR_c_theory = zeros(1, 51);
+for gamma = 0:1e-1:5
+    count = 1;
+    zeta_fun = @(x) 1./(1+x.^(alpha/2));
+    zeta_int = integral(zeta_fun, gamma^(-beta), Inf);
+
+    B = pi*bar_lambda_c*(1+zeta_int) + pi*(gamma/p_c)^beta*( bar_lambda_w*p_w^beta + lambda_z*p_z^beta)/sinc(beta);
+
+    P_c = @(r) 2*pi*bar_lambda_c.*exp(-(noise_c*gamma/p_c)*r.^alpha -B*r.^2).*r;
+    SINR_c_theory(count) = integral(P_c, 0, L);
+    count = count + 1;
+end
+
+%%
+figure(2);
+plot(x, f, 'LineWidth', 2);
 hold on;
 
-scatter(xz, yz);
-scatter(xc, yc);
-scatter(xw, yw);
-legend('Incumbent User','Cellular BS','WiFi AP')
+plot([0:1e-1:5], 1-SINR_c_theory, 's-');
+
+legend('simulation', 'theoretical')
+xlim([0 5])
+xlabel('SINR_c')
+grid on;
+box on;
 
 
 
-
-
-
-
-%%here we compute the distances between all the laser beam directors and the origin.
-% distances_to_origin=abs(x+1j*y); 
- 
-%%here we search for the nearest oint to the origin (contact distance from the origin)
-% nearest_point_index=find(distances_to_origin==min(distances_to_origin)); 
-
-    
+%% Plot
+% 
+% figure('Position', [10 10 500 500]);
+% hold on;
+% box on;
+% 
+% 
+% viscircles([Xz' Yz'], rho*ones(n_z, 1), 'LineWidth', 1, 'color', 'green'); % exclusion zones
+% 
+% scatter(Xz, Yz, 'k.');
+% scatter(Xc, Yc, 'bo');
+% scatter(Xw, Yw, 'rx');
+% 
+% xlabel("x [m]");
+% ylabel("y [m]");
+% 
+% legend('Incumbent User','Cellular BS','WiFi AP')
 
