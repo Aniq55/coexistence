@@ -10,13 +10,13 @@ lambda_z = 1/1e6;   % Backhaul MBS
 lambda_c = 20/1e6;   % cellular SBS
 lambda_w = 40/1e6;   % WiFi APs
 
-rho = 200;  % radius of the exclusion zone
+rho = 100;  % radius of the exclusion zone
 rho_w = 20; % radius of the WiFi PCP disk
 
 % Transmit powers
-p_z = 1;
-p_c = 1;
-p_w = 1;
+p_z = 2;
+p_c = 2;
+p_w = 2;
 
 alpha = 3; % path-loss coefficient
 
@@ -92,44 +92,49 @@ B_0_index = find(R_c == min(R_c));
         I_z = sum(p_z*exprnd(1, n_z, 1).*R_z.^(-alpha));
 
         i = (deployment-1)*n_iterations + iteration;
-        SINR_c(i) = received_power_c/(noise_c + I_c + I_w);
+        SINR_c(i) = received_power_c/(noise_c + I_c + I_w + I_z);
     end
 end
 
 %%
-[f, x] = ecdf(SINR_c);
+[f, SINR] = ecdf(SINR_c);
 
 
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
+
 beta = 2/alpha;
 
 %%
 
-SINR_c_theory = zeros(1, 51);
-for gamma = 0:1e-1:5
-    count = 1;
-    zeta_fun = @(x) 1./(1+x.^(alpha/2));
-    zeta_int = integral(zeta_fun, gamma^(-beta), Inf);
+P_c_list = [];
 
-    B = pi*bar_lambda_c*(1+zeta_int) + pi*(gamma/p_c)^beta*( bar_lambda_w*p_w^beta + lambda_z*p_z^beta)/sinc(beta);
+for gamma= [0: 0.01: 10]
+    
+zeta_fun = @(x) 1./(1+x.^(alpha/2));
+zeta_int = integral(@(x)zeta_fun(x), gamma.^(-beta), Inf, 'ArrayValued', true);
 
-    P_c = @(r) 2*pi*bar_lambda_c.*exp(-(noise_c*gamma/p_c)*r.^alpha -B*r.^2).*r;
-    SINR_c_theory(count) = integral(P_c, 0, L);
-    count = count + 1;
+B = pi.*bar_lambda_c.*(1+zeta_int) + (pi/sinc(beta)).*( bar_lambda_w.*(p_w.^beta) + lambda_z.*(p_z.^beta) ).*((gamma./p_c).^beta);
+
+
+P_c_r = @(r) pi*bar_lambda_c*exp(-(noise_c*gamma/p_c)*(r.^(alpha/2)) - B*r);
+P_c = integral(@(r)P_c_r(r), 0, Inf, 'ArrayValued', true)
+    
+P_c_list = [P_c_list; P_c];
+
 end
-
 %%
 figure(2);
-plot(x, f, 'LineWidth', 2);
+plot(SINR, f, 'LineWidth', 2);
 hold on;
 
-plot([0:1e-1:5], 1-SINR_c_theory, 's-');
+plot([0: 0.01: 10], 1-P_c_list, '--', 'LineWidth', 2);
 
 legend('simulation', 'theoretical')
-xlim([0 5])
-xlabel('SINR_c')
+xlim([0 10])
+xlabel('\gamma')
+ylabel('P(SINR_c \leq \gamma)')
 grid on;
 box on;
 
