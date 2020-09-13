@@ -85,10 +85,10 @@ R_z = abs(Xz + 1j*Yz)';
 
     for iteration = 1:n_iterations
         % create an imaginary WiFi AP at a distance R
-        R = random(pd, 1); % this is wrong (should be a triangular distribution)
+        R = random(pd, 1);
         received_power_w = p_w*exprnd(1)*R^(-alpha);
 
-        I_c = sum(p_w*exprnd(1, n_c, 1).*R_c.^(-alpha));
+        I_c = sum(p_c*exprnd(1, n_c, 1).*R_c.^(-alpha));
         I_w = sum(p_w*exprnd(1, n_w, 1).*R_w.^(-alpha));
         I_z = sum(p_z*exprnd(1, n_z, 1).*R_z.^(-alpha));
 
@@ -140,20 +140,20 @@ box on;
 
 
 %% Plot
-% 
-% figure('Position', [10 10 500 500]);
-% hold on;
-% box on;
-% 
-% 
-% viscircles([Xz' Yz'], rho*ones(n_z, 1), 'LineWidth', 1, 'color', 'green'); % exclusion zones
-% 
-% scatter(Xz, Yz, 'k.');
-% scatter(Xc, Yc, 'bo');
-% scatter(Xw, Yw, 'rx');
-% 
-% xlabel("x [m]");
-% ylabel("y [m]");
-% 
-% legend('Incumbent User','Cellular BS','WiFi AP')
+
+figure('Position', [10 10 500 500]);
+hold on;
+box on;
+
+
+viscircles([Xz' Yz'], rho*ones(n_z, 1), 'LineWidth', 1, 'color', 'green'); % exclusion zones
+
+scatter(Xz, Yz, 'k.');
+scatter(Xc, Yc, 'bo');
+scatter(Xw, Yw, 'rx');
+
+xlabel("x [m]");
+ylabel("y [m]");
+
+legend('Incumbent User','Cellular BS','WiFi AP')
 
