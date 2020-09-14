@@ -15,7 +15,7 @@ p_z = 2;        % transmit power
 
 % Cellular Network
 lambda_c = 20/1e6;
-p_c = 2;        % transmit power
+p_c = 10;        % transmit power
 noise_c= 1e-15; % receiver thermal noise
 delta_c = 0.5;
 
@@ -23,7 +23,7 @@ delta_c = 0.5;
 % WiFi Network
 lambda_w = 40/1e6;
 rho_w = 20;     % radius of the WiFi PCP disk
-p_w = 2;        % transmit power
+p_w = 1;        % transmit power
 noise_w= 1e-14; % receiver thermal noise
 delta_w = 0.5;
 prob_R_w = makedist('Triangular','a',0,'b',rho_w,'c',rho_w);
@@ -31,7 +31,7 @@ prob_R_w = makedist('Triangular','a',0,'b',rho_w,'c',rho_w);
 
 %% Simulation
 
-n_iterations = 10;
+n_iterations = 100;
 
 SINR_cU_list = [];
 SINR_cL_list = [];
@@ -177,9 +177,38 @@ for iter = 1:n_iterations
     
 end
 
-% Plot the CDFs
+% Store the CDFs
+[P_cU_sim, SINR_cU_range] = ecdf(SINR_cU_list);
+[P_cL_sim, SINR_cL_range] = ecdf(SINR_cL_list);
+[P_wU_sim, SINR_wU_range] = ecdf(SINR_wU_list);
+[P_wL_sim, SINR_wL_range] = ecdf(SINR_wL_list);
 
+%% Plot the Sim CDFs
+figure(1);
 
+subplot(2,2,1)
+plot(SINR_cU_range, P_cU_sim);
+ylabel('1-P_{c|U}(\gamma)')
+xlabel('\gamma')
+xlim([0 10])
+
+subplot(2,2,2)
+plot(SINR_cL_range, P_cL_sim);
+ylabel('1-P_{c|L}(\gamma)')
+xlabel('\gamma')
+xlim([0 50])
+
+subplot(2,2,3)
+plot(SINR_wU_range, P_wU_sim);
+ylabel('1-P_{w|U}(\gamma)')
+xlabel('\gamma')
+xlim([0 3000])
+
+subplot(2,2,4)
+plot(SINR_wL_range, P_wL_sim);
+ylabel('1-P_{w|L}(\gamma)')
+xlabel('\gamma')
+xlim([0 5000])
 
 %% Theoretical
 

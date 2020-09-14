@@ -33,7 +33,13 @@ prob_R_w = makedist('Triangular','a',0,'b',rho_w,'c',rho_w);
 
 n_iterations = 10;
 
-for iteration= 1:n_iterations
+SINR_cU_list = [];
+SINR_cL_list = [];
+SINR_wU_list = [];
+SINR_wL_list = [];
+
+
+for iter = 1:n_iterations
     
     % Point Deployment:
     %   1. Phi_Z
@@ -131,11 +137,11 @@ for iteration= 1:n_iterations
     
     
     % Interference Vectors
-    I_z  = sum(p_z*exprnd(1, n_z, 1).*R_z.^(-alpha));
-    I_cL = sum(p_c*exprnd(1, n_cL, 1).*R_cL.^(-alpha));
-    I_cU = sum(p_c*exprnd(1, n_cU, 1).*R_cU.^(-alpha));
-    I_wL = sum(p_w*exprnd(1, n_cL, 1).*R_wL.^(-alpha));
-    I_wU = sum(p_w*exprnd(1, n_cU, 1).*R_wU.^(-alpha));
+    I_z  = p_z*exprnd(1, n_z, 1).*R_z.^(-alpha)';
+    I_cL = p_c*exprnd(1, n_cL, 1).*R_cL.^(-alpha);
+    I_cU = p_c*exprnd(1, n_cU, 1).*R_cU.^(-alpha);
+    I_wL = p_w*exprnd(1, n_wL, 1).*R_wL.^(-alpha);
+    I_wU = p_w*exprnd(1, n_wU, 1).*R_wU.^(-alpha);
     
     
     % Power from associated Points
@@ -150,20 +156,30 @@ for iteration= 1:n_iterations
     % 1. I_cU_total
     I_cU_total = sum(I_cU) + sum(I_z) + sum(I_wU) - P_c0_U;
     SINR_cU = P_c0_U/(noise_c + I_cU_total);
+    SINR_cU_list = [SINR_cU_list; SINR_cU];
     
     % 2. I_wU_total
-    I_wU_total = sum(I_cU) + sum(I_z) + sum(I_wU) - P_w0_U;
+    I_wU_total = sum(I_cU) + sum(I_z) + sum(I_wU);
     SINR_wU = P_w0_U/(noise_w + I_wU_total);
+    SINR_wU_list = [SINR_wU_list; SINR_wU];
+
 
     % Licensed
     % 1. I_cL_total
     I_cL_total = sum(I_cL) - P_c0_L;
-    SINR_cL = P_cL_U/(noise_c + I_cL_total);
+    SINR_cL = P_c0_L/(noise_c + I_cL_total);
+    SINR_cL_list = [SINR_cL_list; SINR_cL];
     
     % 2. I_wL_total
-    I_wL_total = sum(I_wL) - P_w0_L;
-
+    I_wL_total = sum(I_wL);
+    SINR_wL = P_w0_L/(noise_w + I_wL_total);
+    SINR_wL_list = [SINR_wL_list; SINR_wL];
+    
 end
+
+% Plot the CDFs
+[f, SINR] = ecdf(SINR_w);
+
 
 %% Theoretical
 
