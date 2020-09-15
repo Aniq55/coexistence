@@ -14,10 +14,10 @@ rho = 100;      % radius of the exclusion zone
 p_z = 1;        % transmit power
 
 % Cellular Network
-lambda_c = 20/1e6;
+lambda_c = 30/1e6;
 p_c = 0.5;        % transmit power
 noise_c= 1e-15; % receiver thermal noise
-delta_c = 0.6;
+delta_c = 0.5;
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 
@@ -40,6 +40,8 @@ SINR_cL_list = [];
 SINR_wU_list = [];
 SINR_wL_list = [];
 
+nearest_BS_U_list = [];
+nearest_BS_L_list = [];
 
 for iter = 1:n_iterations
     
@@ -134,7 +136,9 @@ for iter = 1:n_iterations
     C0_L_index = find(R_cL == min(R_cL));
     C0_U_index = find(R_cU == min(R_cU));
     
-    
+    nearest_BS_U_list= [nearest_BS_U_list; min(R_cU) ];
+    nearest_BS_L_list= [nearest_BS_L_list; min(R_cL) ];
+        
     R0_w = random(prob_R_w, 1);
     
     
@@ -192,54 +196,52 @@ end
 %% Theoretical
 
 beta = 2.0/alpha;
+zeta_fun = @(x) 1./(1+x.^(alpha/2));
 
-% Calculate:
+% Calculate
 %   1. P_c,L
 P_cL_list = [];
 lambda_cL = lambda_c - delta_c*bar_lambda_c;
 
-for gamma= 10.^[-1:0.5:3]
+for gamma= 10.^([-5:10]/10)
     
-    zeta_fun = @(x) 1./(1+x.^(alpha/2));
-    zeta_int = integral(@(x)zeta_fun(x), gamma.^(-(2/alpha)), Inf, 'ArrayValued', true);
+    zeta_int = integral(@(x)zeta_fun(x), gamma^(-beta), Inf, 'ArrayValued', true);
+    
+    B = pi*lambda_cL*(1 + zeta_int);
+    P_c_rL = @(r) pi*lambda_cL*exp( - B*r -(noise_c*gamma/p_c)*(r.^(alpha/2)) );
+    
+    P_cL = integral(@(r)P_c_rL(r), 0, Inf, 'ArrayValued', true);
 
-    B = pi*lambda_cL.*(1 + zeta_int);
-
-    P_c_r = @(r) pi*lambda_cL.*exp( -(noise_c*gamma/p_c).*(r.^(alpha/2)) - B.*r );
-    P_c = integral(@(r)P_c_r(r), 0, Inf, 'ArrayValued', true);
-
-    P_cL_list = [P_cL_list; P_c];
+    P_cL_list = [P_cL_list; P_cL];
 
 end
 
 %   2. P_c,U
 P_cU_list = [];
+lambda_cU = delta_c*bar_lambda_c;
 
-for gamma= 10.^[-1:0.5:3]
+for gamma= 10.^([-5:10]/10)
     
-    zeta_fun = @(x) 1./(1+x.^(alpha/2));
-    zeta_int = integral(@(x)zeta_fun(x), gamma.^(-beta), Inf, 'ArrayValued', true);
+    zeta_int = integral(@(x)zeta_fun(x), gamma^(-beta), Inf, 'ArrayValued', true);
 
-    B = pi.*delta_c.*bar_lambda_c.*(1 + zeta_int) + (pi/sinc(beta)).*( delta_w.*bar_lambda_w.*(p_w.^beta) + lambda_z.*(p_z.^beta) ).*((gamma./p_c).^beta);
+    B = pi*lambda_cU*(1 + zeta_int) + (pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w^beta) + lambda_z*(p_z^beta) )*((gamma/p_c)^beta);
 
 
-    P_c_r = @(r) pi*delta_c*bar_lambda_c*exp(-(noise_c*gamma/p_c).*(r.^(alpha/2)) - B.*r);
-    P_c = integral(@(r)P_c_r(r), 0, Inf, 'ArrayValued', true);
+    P_c_rU = @(r) pi*lambda_cU*exp(-(noise_c*gamma/p_c)*(r.^(alpha/2)) - B*r);
+    P_cU = integral(@(r)P_c_rU(r), 0, Inf, 'ArrayValued', true);
 
-    P_cU_list = [P_cU_list; P_c];
+    P_cU_list = [P_cU_list; P_cU];
 
 end
 
 %   3. P_w,L
 P_wL_list = [];
 
-for gamma= 10.^[-1:0.5:3]
+for gamma= 10.^([-5:10]/10)
     
+    B = (pi/sinc(beta))*( (lambda_w - delta_w*bar_lambda_w)*(gamma^beta) );
 
-    B = (pi/sinc(beta)).*( (lambda_w - delta_w.*bar_lambda_w).*(gamma.^beta) );
-
-
-    P_w_r = @(r) (1/(rho_w.^2))*exp( -(noise_w*gamma/p_w)*(r.^(alpha/2)) - B*r);
+    P_w_r = @(r) (1/(rho_w^2))*exp( -(noise_w*gamma/p_w)*(r.^(alpha/2)) - B*r);
     P_w = integral(@(r)P_w_r(r), 0, rho_w^2, 'ArrayValued', true);
 
     P_wL_list = [P_wL_list; P_w];
@@ -250,13 +252,11 @@ end
 
 P_wU_list = [];
 
-for gamma= 10.^[-1:0.5:3]
+for gamma= 10.^([-5:10]/10)
     
+    B = (pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w.^beta) + delta_c*bar_lambda_c*(p_c^beta) + lambda_z*(p_z^beta) )*((gamma/p_w)^beta);
 
-    B = (pi/sinc(beta)).*( delta_w.*bar_lambda_w.*(p_w.^beta) + delta_c.*bar_lambda_c.*(p_c.^beta) + lambda_z.*(p_z.^beta) ).*((gamma./p_w).^beta);
-
-
-    P_w_r = @(r) (1/(rho_w.^2))*exp( -(noise_w*gamma/p_w)*(r.^(alpha/2)) - B*r);
+    P_w_r = @(r) (1/(rho_w^2))*exp( -(noise_w*gamma/p_w)*(r.^(alpha/2)) - B*r);
     P_w = integral(@(r)P_w_r(r), 0, rho_w^2, 'ArrayValued', true);
 
     P_wU_list = [P_wU_list; P_w];
@@ -267,44 +267,55 @@ end
 figure(1);
 
 subplot(2,2,1)
-semilogx(SINR_cU_range, 1-P_cU_sim);
+plot(10.*log10(SINR_cU_range), 1-P_cU_sim);
 hold on;
-semilogx(10.^[-1:0.5:3], P_cU_list, 'x');
+plot([-5:10], P_cU_list, 'x');
 ylabel('P_{c|U}(\gamma)')
-xlabel('\gamma')
-xlim([0.1 1000])
+xlabel('\gamma [dB]')
+xlim([-5 10])
 ylim([0 1])
-xticks(10.^[-1:1:3])
 
 subplot(2,2,2)
-semilogx(SINR_cL_range, 1-P_cL_sim);
+plot(10.*log10(SINR_cL_range), 1-P_cL_sim);
 hold on;
-semilogx(10.^[-1:0.5:3], P_cL_list, 'x');
+plot([-5:10], P_cL_list, 'x');
 ylabel('P_{c|L}(\gamma)')
-xlabel('\gamma')
-xlim([0.1 1000])
+xlabel('\gamma [dB]')
+xlim([-5 10])
 ylim([0 1])
-xticks(10.^[-1:1:3])
 
 subplot(2,2,3)
-semilogx(SINR_wU_range, 1-P_wU_sim);
+plot(10.*log10(SINR_wU_range), 1-P_wU_sim);
 hold on;
-semilogx(10.^[-1:0.5:3], P_wU_list, 'x');
+plot([-5:10], P_wU_list, 'x');
 ylabel('P_{w|U}(\gamma)')
-xlabel('\gamma')
-xlim([0.1 1000])
+xlabel('\gamma [dB]')
+xlim([-5 10])
 ylim([0 1])
-xticks(10.^[-1:1:3])
 
 subplot(2,2,4)
-semilogx(SINR_wL_range, 1-P_wL_sim);
+plot(10.*log10(SINR_wL_range), 1-P_wL_sim);
 hold on;
-semilogx(10.^[-1:0.5:3], P_wL_list, 'x');
+plot([-5:10], P_wL_list, 'x');
 ylabel('P_{w|L}(\gamma)')
-xlabel('\gamma')
-xlim([0.1 1000])
+xlabel('\gamma [dB]')
+xlim([-5 10])
 ylim([0 1])
-xticks(10.^[-1:1:3])
+
+%% Nearest BS distance [Verification: OK]
+% figure(2);
+% cdfplot(nearest_BS_U_list);
+% hold on;
+% cdfplot(nearest_BS_L_list);
+% 
+% syms x
+% 
+% fplot(1-exp(-pi*(delta_c*bar_lambda_c)*x^2), 'o-')
+% fplot(1-exp(-pi*(lambda_c - delta_c*bar_lambda_c)*x^2), 'x-')
+% 
+% legend('Unlicensed: Sim','Licensed: Sim','Unlicensed: Theory','Licensed: Theory')
+% xlim([0 400])
+% xlabel('distance [m]')
 
 %% Calculate Datarate
 
