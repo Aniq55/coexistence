@@ -205,12 +205,11 @@ lambda_cL = lambda_c - delta_c*bar_lambda_c;
 
 for gamma= 10.^([-5:10]/10)
     
-    zeta_int = integral(@(x)zeta_fun(x), gamma^(-beta), Inf, 'ArrayValued', true);
+    zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/alpha), gamma^(-beta), Inf, 'ArrayValued', true);
     
-    B = pi*lambda_cL*(1 + zeta_int);
-    P_c_rL = @(r) pi*lambda_cL*exp( - B*r -(noise_c*gamma/p_c)*(r.^(alpha/2)) );
-    
-    P_cL = integral(@(r)P_c_rL(r), 0, Inf, 'ArrayValued', true);
+    f_R=@(r)2*pi*lambda_cL*r*exp(-pi*lambda_cL*r^2);
+    L_I=@(r)exp(-2*pi*lambda_cL*r^2*zeta_int);
+    P_cL=integral(@(r)f_R(r)*exp(-gamma*r^(alpha)*noise_c/p_c),0,inf,'ArrayValued',true)*integral(@(r)f_R(r)*L_I(r),0,inf,'ArrayValued',true);
 
     P_cL_list = [P_cL_list; P_cL];
 
@@ -222,14 +221,13 @@ lambda_cU = delta_c*bar_lambda_c;
 
 for gamma= 10.^([-5:10]/10)
     
-    zeta_int = integral(@(x)zeta_fun(x), gamma^(-beta), Inf, 'ArrayValued', true);
-
-    B = pi*lambda_cU*(1 + zeta_int) + (pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w^beta) + lambda_z*(p_z^beta) )*((gamma/p_c)^beta);
-
-
-    P_c_rU = @(r) pi*lambda_cU*exp(-(noise_c*gamma/p_c)*(r.^(alpha/2)) - B*r);
-    P_cU = integral(@(r)P_c_rU(r), 0, Inf, 'ArrayValued', true);
-
+    zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/alpha), gamma^(-beta), Inf, 'ArrayValued', true);
+    
+    f_R=@(r)2*pi*lambda_cU*r*exp(-pi*lambda_cU*r^2);
+    L_I=@(r)exp(-2*pi*lambda_cU*r^2*zeta_int);
+    L_Iwz = @(r)exp( -(pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w^beta) + lambda_z*(p_z^beta) )*((gamma/p_c)^beta)*r^2 );
+    
+    P_cU= integral(@(r)f_R(r)*exp(-gamma*r^(alpha)*noise_c/p_c)*L_I(r)*L_Iwz(r), 0, inf, 'ArrayValued', true  );
     P_cU_list = [P_cU_list; P_cU];
 
 end
