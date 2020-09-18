@@ -1,4 +1,4 @@
-function r_c = datarate_cellular(delta_w, delta_c, gamma, PARAM)
+function r_c = datarate_cellular(delta_c, delta_w, gamma, PARAM)
     
     beta = 2.0/PARAM.alpha;
     lambda_cU = delta_c*PARAM.bar_lambda_c;

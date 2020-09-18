@@ -1,4 +1,4 @@
-function r_w = datarate_wifi(delta_w, delta_c, gamma, PARAM)
+function r_w = datarate_wifi(delta_c, delta_w, gamma, PARAM)
     
     beta = 2.0/PARAM.alpha;
     lambda_wU = delta_w*PARAM.bar_lambda_w;
