@@ -33,7 +33,7 @@ prob_R_w = makedist('Triangular','a',0,'b',rho_w,'c',rho_w);
 
 %% Simulation
 
-n_iterations = 1000;
+n_iterations = 2000;
 
 SINR_cL_list = [];
 
@@ -86,7 +86,7 @@ for gamma= 10.^([-5:10]/10)
     
     f_R=@(r)2*pi*lambda_cL*r*exp(-pi*lambda_cL*r^2);
     L_I=@(r)exp(-2*pi*lambda_cL*r^2*zeta_int);
-    P_cL=integral(@(r)f_R(r)*exp(-gamma*r^(alpha)*noise_c/p_c),0,inf,'ArrayValued',true)*integral(@(r)f_R(r)*L_I(r),0,inf,'ArrayValued',true);
+    P_cL=integral(@(r)f_R(r)*exp(-gamma*r^(alpha)*noise_c/p_c)*L_I(r),0,inf,'ArrayValued',true);
 
     P_cL_list = [P_cL_list; P_cL];
 
