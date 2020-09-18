@@ -1,47 +1,51 @@
-% Creating a class to store all constants
+clc;
+clear all;
+
+%% Define Constants
+
+% Environment
+alpha = 3.0;      % path-loss coefficient
+
+% Incumbent Users
+lambda_z = 1/1e6;
+rho = 100;      % radius of the exclusion zone
+p_z = 1;        % transmit power
+
+% Cellular Network
+lambda_c = 30/1e6;
+p_c = 0.5;        % transmit power
+noise_c= 1e-15; % receiver thermal noise
+bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
+
+% WiFi Network
+lambda_w = 40/1e6;
+rho_w = 20;     % radius of the WiFi PCP disk
+p_w = 0.1;        % transmit power
+noise_w= 1e-15; % receiver thermal noise
+bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
+
+% Bandwidths
+B_cL = 1;
+B_cU = 4;
+B_wL = 2;
+B_wU= 4;
+
+
+% Create parameters object
+params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
+    bar_lambda_c, bar_lambda_w, p_z, p_c, p_w, noise_c, noise_w, ...
+    B_cL, B_cU, B_wL, B_wU);
+
+%%
+
+rate_c_sample_call = datarate_cellular(0.5, 0.5, 100, params)
+
+rate_w_sample_call = datarate_wifi(0.5, 0.5, 100, params)
 
 
 
-% Define datarate as functions
-gamma = 1;
 
-% cellular
-
-% INPUTS: delta_c, delta_w, gamma, alpha, lambda_c, bar_lambda_c, lambda_w, bar_lambda_w, lambda_z, noise_c, p_c, p_w, p_z
-% delta_c, delta_w
-% gamma, alpha
-% lambda_c, lambda_w, lambda_z = LAMBDA
-% bar_lambda_c, bar_lambda_w = BAR_LAMBDA
-% p_c, p_w, p_z = TX_POWER
-% noise_c
-% B_cL, B_cU = BANDWIDTH_CELLULAR
-
-beta = 2.0/alpha;
-lambda_cU = delta_c*bar_lambda_c;
-lambda_cL = lambda_c - lambda_cU;
-
-zeta_fun = @(x) 1./(1+x.^(alpha/2));
-zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/alpha), gamma^(-beta), Inf, 'ArrayValued', true);
-
-%   1. P_c,L
-    
-f_RL=@(r)2*pi*lambda_cL*r*exp(-pi*lambda_cL*r^2);
-L_IcL=@(r)exp(-2*pi*lambda_cL*r^2*zeta_int);
-
-P_cL=integral(@(r)f_RL(r)*exp(-gamma*r^(alpha)*noise_c/p_c)*L_IcL(r),0,inf,'ArrayValued',true);
-
-%   2. P_c,U
-
-f_RU=@(r)2*pi*lambda_cU*r*exp(-pi*lambda_cU*r^2);
-L_IcU=@(r)exp(-2*pi*lambda_cU*r^2*zeta_int);
-L_Iwz = @(r)exp( -(pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w^beta) + lambda_z*(p_z^beta) )*((gamma/p_c)^beta)*r^2 );
-
-P_cU= integral(@(r)f_RU(r)*exp(-gamma*r^(alpha)*noise_c/p_c)*L_IcU(r)*L_Iwz(r), 0, inf, 'ArrayValued', true  );
-    
-
-% WiFi
-
-% Run nested loops:
+%% Plot Nash Equilibrium Point(s):
 
 % 1. Find delta_c_star against delta_w
 
