@@ -9,26 +9,26 @@ alpha = 3.0;      % path-loss coefficient
 % Incumbent Users
 lambda_z = 1/1e6;
 rho = 100;      % radius of the exclusion zone
-p_z = 2;        % transmit power [W]
+p_z = 16;        % transmit power
 
 % Cellular Network
-lambda_c = 50/1e6;
-p_c = 1;        % transmit power [W]
-noise_c= 1e-15; % receiver thermal noise
+lambda_c = 30/1e6;
+p_c = 16;        % transmit power [W]
+noise_c= 1e-16; % receiver thermal noise
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 % WiFi Network
-lambda_w = 200/1e6;
-rho_w = 25;     % radius of the WiFi PCP disk
+lambda_w = 40/1e6;
+rho_w = 20;     % radius of the WiFi PCP disk
 p_w = 0.1;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.072;
-B_cU = 0.3;
-B_wL = 0.01;
-B_wU= 0.3;
+B_cU = 0.5;
+B_wL = 0.1;
+B_wU= 0.5;
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
@@ -36,16 +36,15 @@ params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
     B_cL, B_cU, B_wL, B_wU);
 
 %% Plot Nash Equilibrium Point(s):
-delta_resolution = 0.01;
-DELTA_RANGE = [0: delta_resolution: 1];
+DELTA_RANGE = [0: 0.01: 1];
 SINR_threshold = 100;
 
 % 1. Find delta_c_star against delta_w
-delta_c_star = zeros(1, length(DELTA_RANGE));
+delta_c_star = zeros(1, 101);
 i= 1;
-for delta_w = [0: delta_resolution : 1]
+for delta_w = [0: 0.01: 1]
     r_c_list = [];
-    for delta_c = [0: delta_resolution : 1]
+    for delta_c = [0: 0.01: 1]
         r_c_list = [r_c_list; datarate_cellular(delta_c, delta_w, SINR_threshold, params)];
     end
     [argvalue, argmax] = max(r_c_list);
@@ -55,11 +54,11 @@ for delta_w = [0: delta_resolution : 1]
 end
 
 % 2. Find delta_w_star against delta_c
-delta_w_star = zeros(1, length(DELTA_RANGE));
+delta_w_star = zeros(1, 101);
 i = 1;
-for delta_c = [0: delta_resolution : 1]
+for delta_c = [0: 0.01: 1]
     r_w_list = [];
-    for delta_w = [0: delta_resolution : 1]
+    for delta_w = [0: 0.01: 1]
         r_w_list = [r_w_list; datarate_wifi(delta_c, delta_w, SINR_threshold, params)];
     end
     [argvalue, argmax] = max(r_w_list);
