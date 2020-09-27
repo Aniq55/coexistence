@@ -20,15 +20,17 @@ bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 % WiFi Network
 lambda_w = 200/1e6;
 rho_w = 25;     % radius of the WiFi PCP disk
-p_w = 0.25;        % transmit power [W]
+p_w = 1;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.080;
-B_cU = 0.25;
+B_cU = 0.500;
 B_wL = 0.094;
-B_wU= 0.25;
+B_wU = 0.500;
+
+min_datarate = 0.09; %Gbps
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
@@ -46,9 +48,16 @@ i= 1;
 for delta_w = [0: delta_resolution : 1]
     r_c_list = [];
     for delta_c = [0: delta_resolution : 1]
-        r_c_list = [r_c_list; datarate_cellular(delta_c, delta_w, SINR_threshold, params)];
+        this_datarate = datarate_cellular(delta_c, delta_w, SINR_threshold, params);
+        if this_datarate > min_datarate
+            this_reward = min_datarate;
+        else
+            this_reward = this_datarate;
+        end
+        r_c_list = [r_c_list; this_reward];
     end
     [argvalue, argmax] = max(r_c_list);
+    
     delta_val = DELTA_RANGE(argmax);
     delta_c_star(i) = delta_val;
     i=i+1;
@@ -60,7 +69,13 @@ i = 1;
 for delta_c = [0: delta_resolution : 1]
     r_w_list = [];
     for delta_w = [0: delta_resolution : 1]
-        r_w_list = [r_w_list; datarate_wifi(delta_c, delta_w, SINR_threshold, params)];
+        this_datarate = datarate_wifi(delta_c, delta_w, SINR_threshold, params);
+        if this_datarate > min_datarate
+            this_reward = min_datarate;
+        else
+            this_reward = this_datarate;
+        end
+        r_w_list = [r_w_list; this_reward];
     end
     [argvalue, argmax] = max(r_w_list);
     delta_val = DELTA_RANGE(argmax);
@@ -79,7 +94,7 @@ xlabel('\delta_w/\delta_w^*')
 ylabel('\delta_c^*/\delta_c')
 
 %%
-delta_c_test = 0.99;
-delta_w_test = 0.77;
+delta_w_test = 0.05;
+delta_c_test = 0.77;
 datarate_wifi(delta_c_test, delta_w_test, SINR_threshold, params)
 datarate_cellular(delta_c_test, delta_w_test, SINR_threshold, params)
