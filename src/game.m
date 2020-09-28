@@ -20,15 +20,15 @@ bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 % WiFi Network
 lambda_w = 200/1e6;
 rho_w = 25;     % radius of the WiFi PCP disk
-p_w = 0.25;        % transmit power [W]
+p_w = 1;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.080;
-B_cU = 0.25;
-B_wL = 0.094;
-B_wU= 0.25;
+B_cU = 0.160;
+B_wL = 0.080;
+B_wU = 0.160;
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
@@ -79,7 +79,7 @@ xlabel('\delta_w/\delta_w^*')
 ylabel('\delta_c^*/\delta_c')
 
 %%
-delta_c_test = 0.99;
-delta_w_test = 0.77;
+delta_w_test = 0.0;
+delta_c_test = 1.0;
 datarate_wifi(delta_c_test, delta_w_test, SINR_threshold, params)
 datarate_cellular(delta_c_test, delta_w_test, SINR_threshold, params)

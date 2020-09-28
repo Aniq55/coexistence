@@ -26,11 +26,11 @@ bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.080;
-B_cU = 0.500;
-B_wL = 0.094;
-B_wU = 0.500;
+B_cU = 0.160;
+B_wL = 0.080;
+B_wU = 0.160;
 
-min_datarate = 0.09; %Gbps
+min_datarate = 0.04; %Gbps
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
@@ -94,7 +94,7 @@ xlabel('\delta_w/\delta_w^*')
 ylabel('\delta_c^*/\delta_c')
 
 %%
-delta_w_test = 0.05;
-delta_c_test = 0.77;
+delta_w_test = 0.0;
+delta_c_test = 1.0;
 datarate_wifi(delta_c_test, delta_w_test, SINR_threshold, params)
 datarate_cellular(delta_c_test, delta_w_test, SINR_threshold, params)
