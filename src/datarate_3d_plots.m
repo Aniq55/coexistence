@@ -73,7 +73,7 @@ ylabel('\delta_c')
 zlabel('r_w [Gbps]')
 
 %%
-figure(1);
+figure(2);
 subplot(1,2,1);
 surf(DELTA_RANGE, DELTA_RANGE, datarate_wifi_all - datarate_cell_all);
 xlabel('\delta_w')

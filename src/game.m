@@ -8,24 +8,24 @@ alpha = 3.5;      % path-loss coefficient
 
 % Incumbent Users
 lambda_z = 1/1e6;
-rho = 100;      % radius of the exclusion zone
-p_z =6.3;        % transmit power [W]
+rho = 200;      % radius of the exclusion zone
+p_z = 1;        % transmit power [W]
 
 % Cellular Network
-lambda_c = 50/1e6;
-p_c = 5;        % transmit power [W]
+lambda_c = 25/1e6;
+p_c = 4;        % transmit power [W]
 noise_c= 1e-15; % receiver thermal noise
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 % WiFi Network
-lambda_w = 200/1e6;
-rho_w = 25;     % radius of the WiFi PCP disk
-p_w = 1;        % transmit power [W]
+lambda_w = 100/1e6;
+rho_w = 50;     % radius of the WiFi PCP disk
+p_w = 4;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
-B_cL = 0.080;
+B_cL = 0.040;
 B_cU = 0.160;
 B_wL = 0.080;
 B_wU = 0.160;
