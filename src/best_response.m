@@ -12,13 +12,13 @@ rho = 200;      % radius of the exclusion zone
 p_z = 1;        % transmit power [W]
 
 % Cellular Network
-lambda_c = 25/1e6;
+lambda_c = 250/1e6;
 p_c = 4;        % transmit power [W]
 noise_c= 1e-15; % receiver thermal noise
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 % WiFi Network
-lambda_w = 100/1e6;
+lambda_w = 400/1e6;
 rho_w = 50;     % radius of the WiFi PCP disk
 p_w = 4;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
@@ -26,9 +26,9 @@ bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.100;
-B_cU = 0.240;
+B_cU = 0.320;
 B_wL = 0.160;
-B_wU = 0.240;
+B_wU = 0.320;
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
