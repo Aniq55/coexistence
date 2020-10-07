@@ -8,6 +8,8 @@
 * `PPP_gen_polar_stoyan` : Generates a PPP in polar coordinates using Stoyan's method
 * `datarate_cellular` : Calculates datarate for average cellular user
 * `datarate_wifi` : Calculates datarate for average wifi user
+* `best_response_cellular` : Returns the delta_c value which gives the highest datarate against delta_w
+* `best_response_wifi` : Returns the delta_w value which gives the highest datarate against delta_c
 
 
 ### Classes
@@ -16,5 +18,7 @@
 ### Scripts
 * `main` : To verify theoretical results against simulations
 * `game` : Framework to generate plot to identify Nash Equilibria points
-* `test` : To tet any anomalous part of the code
-
+* `test` : To test any anomalous part of the code
+* `best_response` : To find the Nash Equilibrium in a game
+* `gen_heatmap` : To generate heatmap of delta and datarate values for various configurations
+* `max_datarate` : To find the maximum datarate in the absense of the opponent network
