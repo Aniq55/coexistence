@@ -22,3 +22,4 @@
 * `best_response` : To find the Nash Equilibrium in a game
 * `gen_heatmap` : To generate heatmap of delta and datarate values for various configurations
 * `max_datarate` : To find the maximum datarate in the absense of the opponent network
+* `datarate_ratio` : To find the ratio of datarates achieved per experiment
