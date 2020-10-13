@@ -25,9 +25,9 @@ noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
-B_cL = 0.080;
+B_cL = 0.80;
 B_cU = 0.320;
-B_wL = 0.080;
+B_wL = 0.160;
 B_wU = 0.320;
 
 % Create parameters object
@@ -61,13 +61,13 @@ end
 
 %%
 
-scale_constant = 1e5;
-% 
-% figure(1);
-opt_fn = (datarate_cell_all.*datarate_wifi_all).*(datarate_cell_all + datarate_wifi_all)./(1 + scale_constant*(datarate_cell_all - datarate_wifi_all).^2);
-% surf(DELTA_RANGE, DELTA_RANGE, opt_fn);
-% xlabel('\delta_w')
-% ylabel('\delta_c')
+scale_constant = 1e1;
+
+figure(1);
+opt_fn = (datarate_cell_all + datarate_wifi_all)./(1 + scale_constant*(datarate_cell_all - datarate_wifi_all).^2);
+surf(DELTA_RANGE, DELTA_RANGE, opt_fn);
+xlabel('\delta_w')
+ylabel('\delta_c')
 
 marker_list= ["x-", "o-", "+-", "s-", "v-", ...
     "^-", "*-", "x--", "o--", "+--", "v--" ];
@@ -85,10 +85,9 @@ grid on;
 %%
 
 Dc = 0.0;
-Dw = 0.8;
+Dw = 0.7;
 
-[ datarate_cellular(Dc, Dw, SINR_threshold, params), ...
-    datarate_wifi(Dc, Dw, SINR_threshold, params)]
+[ datarate_cellular(Dc, delta_w, SINR_threshold, params), ...
 
 %%
 % figure(1);
