@@ -12,7 +12,7 @@ rho = 200;      % radius of the exclusion zone
 p_z = 1;        % transmit power [W]
 
 % Cellular Network
-lambda_c = 50/1e6;
+lambda_c = 25/1e6;
 p_c = 4;        % transmit power [W]
 noise_c= 1e-15; % receiver thermal noise
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
@@ -26,9 +26,9 @@ bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
 % Bandwidths [GHz]
 B_cL = 0.080;
-B_cU = 0.320;
+B_cU = 0.240;
 B_wL = 0.080;
-B_wU = 0.320;
+B_wU = 0.240;
 
 % Create parameters object
 params = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
@@ -39,7 +39,7 @@ SINR_threshold = 100;
 
 %%
 
-delta_resolution = 0.1;
+delta_resolution = 0.05;
 DELTA_RANGE = [0: delta_resolution: 1];
 
 
@@ -61,13 +61,23 @@ end
 
 %%
 
-scale_constant = 1e5;
-% 
-% figure(1);
-opt_fn = (datarate_cell_all.*datarate_wifi_all).*(datarate_cell_all + datarate_wifi_all)./(1 + scale_constant*(datarate_cell_all - datarate_wifi_all).^2);
-% surf(DELTA_RANGE, DELTA_RANGE, opt_fn);
-% xlabel('\delta_w')
-% ylabel('\delta_c')
+% preference weightage
+pref_cell = 1;
+pref_wifi = 3;
+
+% min datarate
+r_c_min = 0.035;
+r_w_min = 0.05;
+
+
+figure(1);
+opt_fn = (pref_cell.*(datarate_cell_all) ...
+    + pref_wifi.*(datarate_wifi_all)).*( ...
+    datarate_cell_all >= r_c_min).*(datarate_wifi_all >= r_w_min);
+opt_fn = 0.5*(opt_fn + abs(opt_fn));
+surf(DELTA_RANGE, DELTA_RANGE, opt_fn);
+xlabel('\delta_w')
+ylabel('\delta_c')
 
 marker_list= ["x-", "o-", "+-", "s-", "v-", ...
     "^-", "*-", "x--", "o--", "+--", "v--" ];
@@ -82,13 +92,30 @@ xlabel("\delta_c")
 box on;
 grid on;
 
+% Find the argmax in a 2D matrix
+[max1, argmax1] = max(opt_fn);
+argmax1 = max(argmax1);
+[max2, argmax2] = max(max1);
+
+delta_c_star = (argmax1-1)*delta_resolution;
+delta_w_star = (argmax2-1)*delta_resolution;
+
+[delta_c_star, delta_w_star]
+
+if max2 == 0
+   % false maximum (no solution)
+   display('no solution');
+end
+
 %%
 
-Dc = 0.0;
-Dw = 0.8;
+Dc = delta_c_star;
+Dw = delta_w_star;
 
-[ datarate_cellular(Dc, Dw, SINR_threshold, params), ...
-    datarate_wifi(Dc, Dw, SINR_threshold, params)]
+rate_cell_star = datarate_cellular(Dc, Dw, SINR_threshold, params);
+rate_wifi_star = datarate_wifi(Dc, Dw, SINR_threshold, params);
+%%
+[r_c_min, r_w_min, Dc, Dw, rate_cell_star, rate_wifi_star]'
 
 %%
 % figure(1);

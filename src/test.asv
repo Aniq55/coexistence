@@ -1,0 +1,73 @@
+clc
+clear all
+
+%% parameters
+
+% Environment
+alpha = 3.5;      % path-loss coefficient
+
+% Incumbent Users
+lambda_z = 1/1e6;
+rho = 200;      % radius of the exclusion zone
+p_z = 1;        % transmit power [W]
+
+% Cellular Network
+lambda_c = 25/1e6;
+p_c = 4;        % transmit power [W]
+noise_c= 1e-15; % receiver thermal noise
+bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
+
+% WiFi Network
+lambda_w = 100/1e6;
+rho_w = 50;     % radius of the WiFi PCP disk
+p_w = 4;        % transmit power [W]
+noise_w= 1e-15; % receiver thermal noise
+bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
+
+% Bandwidths [GHz]
+B_cL = 0.080;
+B_cU = 0.240;
+B_wL = 0.080;
+B_wU = 0.240;
+
+% Create parameters object
+PARAM = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
+    bar_lambda_c, bar_lambda_w, p_z, p_c, p_w, noise_c, noise_w, ...
+    B_cL, B_cU, B_wL, B_wU);
+
+SINR = 10.^([-5:10]/10);
+SINR_dB = [-5:10];
+
+beta = 2.0/PARAM.alpha;
+delta_c = 0.5;
+delta_w = 0.5;
+
+P_cU_list = [];
+P_cU_approx_list = [];
+
+lambda_cU = delta_c*PARAM.bar_lambda_c;
+lambda_cL = PARAM.lambda_c - lambda_cU;
+
+for gamma = SINR
+    zeta_fun = @(x) 1./(1+x.^(PARAM.alpha/2));
+    zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/PARAM.alpha), ...
+        gamma^(-beta), Inf, 'ArrayValued', true);
+
+    % P_c,U
+
+    f_RU=@(r)2*pi*lambda_cU*r*exp(-pi*lambda_cU*r^2);
+    L_IcU=@(r)exp(-2*pi*lambda_cU*r^2*zeta_int);
+    L_Iwz = @(r)exp( -(pi/sinc(beta))*( delta_w*PARAM.bar_lambda_w*(PARAM.p_w^beta) ...
+        + PARAM.lambda_z*(PARAM.p_z^beta) )*((gamma/PARAM.p_c)^beta)*r^2 );
+
+    P_cU= integral(@(r)f_RU(r)*exp(-gamma*r^(PARAM.alpha)*PARAM.noise_c/PARAM.p_c)*L_IcU(r)*L_Iwz(r), ...
+        0, inf, 'ArrayValued', true  );
+    P_cU_list = [P_cU_list; P_cU];
+    
+    % P_c,U_aprox
+        
+end
+
+plot(SINR_dB, P_cU_list)
+hold on;
+plot(SINR_dB, coverage(delta_c, delta_w, SINR, PARAM)())
