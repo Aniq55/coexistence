@@ -37,11 +37,11 @@ param = parameters(alpha, rho, rho_w, lambda_z, lambda_c, lambda_w, ...
 
 SINR = 1;
 
-%% Constructing an Entity set
+%% Constructing a set of Entities
 
-e1 = entity(0.4, 0.5, 0, 0, 0, 0);
-e2 = entity(0.6, 0.0, 0, 0, 0, 0);
-e3 = entity(0.0, 0.5, 0, 0, 0, 0);
+e1 = entity(0.4, 0.5, 0, 0, 0.025, 0.08, 10, 1);
+e2 = entity(0.6, 0.0, 0, 0, 0.03, 0, 1, 1);
+e3 = entity(0.0, 0.5, 0, 0, 0, 0.11, 1, 1);
 
 E = [e1, e2, e3];
 n_entity = length(E);
@@ -63,16 +63,24 @@ while true
         E(i) = E(i).best_response( delta_c_prev - E(i).v_c*E(i).delta_c, delta_w_prev - E(i).v_w*E(i).delta_w, param, SINR);
     end
     
-    if n_iter == 2 % convergence
+    [E(1).delta_c, E(1).delta_w, ...
+        E(2).delta_c, E(2).delta_w, ...
+        E(3).delta_c, E(3).delta_w]
+    
+    if n_iter == 10 % convergence condition
         break;
     end
 end
 
 %% Final values
-for e = E
-    e.delta_c;
-    e.delta_w;
-end
+
+[E(1).delta_c, E(1).delta_w, ...
+        E(2).delta_c, E(2).delta_w, ...
+        E(3).delta_c, E(3).delta_w]
+    
+[E(1).r_c, E(1).r_w, ...
+    E(2).r_c, E(2).r_w, ...
+    E(3).r_c, E(3).r_w]
 
 
 
