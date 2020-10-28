@@ -1,0 +1,40 @@
+clc;
+clear all;
+
+%% Constructing an Entity set
+
+e1 = entity(0.4, 0.5, 0, 0, 0, 0);
+e2 = entity(0.6, 0.0, 0, 0, 0, 0);
+e3 = entity(0.0, 0.5, 0, 0, 0, 0);
+
+E = [e1, e2, e3];
+n_entity = length(E);
+
+%%
+n_iter = 0;
+while true
+    n_iter = n_iter + 1;
+    
+    delta_c_prev = 0;
+    delta_w_prev = 0;
+    for e = E
+        delta_c_prev = delta_c_prev + e.v_c*e.delta_c;
+        delta_w_prev = delta_w_prev + e.v_w*e.delta_w;
+    end
+    % Get Best Response
+    for e = E
+        e = e.best_response( delta_c_prev - e.v_c*e.delta_c, ...
+            delta_w_prev - e.v_w*e.delta_w);
+    end
+    
+    if true% convergence
+        break;
+    end
+end
+
+for e = E
+    e.delta_c
+end
+
+
+
