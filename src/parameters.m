@@ -54,7 +54,7 @@ classdef parameters
             obj.B_wU            = BAND_WU;
         end
         
-        function coverage_vector = coverage_probability(obj, SINR, delta_c, delta_w)
+        function [P_cL, P_cU, P_wL, P_wU] = coverage_probability(obj, SINR, delta_c, delta_w)
             % calculate and append the coverage probabilities here
             
             beta = 2.0/obj.alpha;
@@ -104,8 +104,6 @@ classdef parameters
             P_wU = integral(@(r)P_w_rU(r), 0, obj.rho_w^2, 'ArrayValued', true);
             
             
-            % Final output vector
-            coverage_vector = [P_cL, P_cU, P_wL, P_wU];
         end
         
     end

@@ -13,14 +13,14 @@ p_z = 1;        % transmit power [W]
 
 % Cellular Network
 lambda_c = 25/1e6;
-p_c = 4;        % transmit power [W]
+p_c = 2;        % transmit power [W]
 noise_c= 1e-15; % receiver thermal noise
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 % WiFi Network
 lambda_w = 100/1e6;
 rho_w = 50;     % radius of the WiFi PCP disk
-p_w = 4;        % transmit power [W]
+p_w = 1;        % transmit power [W]
 noise_w= 1e-15; % receiver thermal noise
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 
@@ -39,15 +39,17 @@ SINR = 1;
 
 %% Constructing a set of Entities
 
-e1 = entity(0.4, 0.5, 0, 0, 0.025, 0.08, 10, 1);
-e2 = entity(0.6, 0.0, 0, 0, 0.03, 0, 1, 1);
-e3 = entity(0.0, 0.5, 0, 0, 0, 0.11, 1, 1);
+share = 1.0;
+% V_C, V_W, DELTA_C, DELTA_W, R_C_MIN, R_W_MIN, THETA_C, THETA_W
+e1 = entity(share, 0.5, 0, 0, 0.03,   0.1,   1, 1);
+e2 = entity(1.0-share, 0.5, 0, 0, 0.03,   0.1,   1, 1);
 
-E = [e1, e2, e3];
+E = [e1, e2];
 n_entity = length(E);
 
 %%
 n_iter = 0;
+prev_vector = zeros(1, n_entity);
 while true
     n_iter = n_iter + 1;
     
@@ -58,29 +60,38 @@ while true
         delta_w_prev = delta_w_prev + e.v_w*e.delta_w;
     end
     
+    this_vector = [];
     % Get Best Response
     for i = 1: n_entity
         E(i) = E(i).best_response( delta_c_prev - E(i).v_c*E(i).delta_c, delta_w_prev - E(i).v_w*E(i).delta_w, param, SINR);
+        this_vector = [this_vector; E(i).delta_c];
+        this_vector = [this_vector; E(i).delta_w];
     end
-    
-    [E(1).delta_c, E(1).delta_w, ...
-        E(2).delta_c, E(2).delta_w, ...
-        E(3).delta_c, E(3).delta_w]
-    
-    if n_iter == 10 % convergence condition
+   
+%     this_vector
+    if sum(abs(prev_vector - this_vector)) == 0 % convergence condition
         break;
     end
+    
+%     if n_iter == 2
+%         break
+%     end
+    
+    prev_vector = this_vector;
+    
 end
 
 %% Final values
 
-[E(1).delta_c, E(1).delta_w, ...
-        E(2).delta_c, E(2).delta_w, ...
-        E(3).delta_c, E(3).delta_w]
+n_iter;
+this_vector
     
-[E(1).r_c, E(1).r_w, ...
-    E(2).r_c, E(2).r_w, ...
-    E(3).r_c, E(3).r_w]
+datarates_list = [];
+for i = 1: n_entity
+    datarates_list = [datarates_list; E(i).r_c];
+    datarates_list = [datarates_list; E(i).r_w];
+end
 
+datarates_list
 
 
