@@ -5,7 +5,7 @@ function [arg_c, arg_w] = arg_max_2d(f, resolution)
     [max2, argmax2] = max(max1);
 
     % Best Response
-    arg_c = (argmax2-1)*resolution;
-    arg_w = (argmax1-1)*resolution;
-    
+    arg_w = (argmax2-1)*resolution;
+    arg_c = (argmax1-1)*resolution;
+    max2
 end

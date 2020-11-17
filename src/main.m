@@ -6,34 +6,34 @@ clear all;
 
 % Environment
 L = 10*1e3;     % 10 km
-alpha = 3.0;      % path-loss coefficient
+alpha = 3.5;      % path-loss coefficient
 
 % Incumbent Users
 lambda_z = 1/1e6;
-rho = 100;      % radius of the exclusion zone
+rho = 200;      % radius of the exclusion zone
 p_z = 1;        % transmit power
 
 % Cellular Network
-lambda_c = 30/1e6;
-p_c = 0.5;        % transmit power
+lambda_c = 25/1e6;
+p_c = 2;        % transmit power
 noise_c= 1e-15; % receiver thermal noise
-delta_c = 0.5;
+delta_c = 0.7;
 bar_lambda_c = lambda_c*exp(-pi*lambda_z*rho^2);
 
 
 % WiFi Network
-lambda_w = 40/1e6;
-rho_w = 20;     % radius of the WiFi PCP disk
-p_w = 0.1;        % transmit power
+lambda_w = 100/1e6;
+rho_w = 50;     % radius of the WiFi PCP disk
+p_w = 1;        % transmit power
 noise_w= 1e-15; % receiver thermal noise
-delta_w = 0.5;
+delta_w = 0.2;
 bar_lambda_w = lambda_w*exp(-pi*lambda_z*rho^2);
 prob_R_w = makedist('Triangular','a',0,'b',rho_w,'c',rho_w);
 
 
 %% Simulation
 
-n_iterations = 1000;
+n_iterations = 5000;
 
 SINR_cU_list = [];
 SINR_cL_list = [];
@@ -203,7 +203,9 @@ zeta_fun = @(x) 1./(1+x.^(alpha/2));
 P_cL_list = [];
 lambda_cL = lambda_c - delta_c*bar_lambda_c;
 
-for gamma= 10.^([-5:10]/10)
+SINR_vec = 10.^([-10:40]/10);
+
+for gamma= SINR_vec
     
     zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/alpha), gamma^(-beta), Inf, 'ArrayValued', true);
     
@@ -219,7 +221,7 @@ end
 P_cU_list = [];
 lambda_cU = delta_c*bar_lambda_c;
 
-for gamma= 10.^([-5:10]/10)
+for gamma= SINR_vec
     
     zeta_int = integral(@(x)zeta_fun(x)*0.5*gamma^(2/alpha), gamma^(-beta), Inf, 'ArrayValued', true);
     
@@ -235,7 +237,7 @@ end
 %   3. P_w,L
 P_wL_list = [];
 
-for gamma= 10.^([-5:10]/10)
+for gamma= SINR_vec
     
     B = (pi/sinc(beta))*( (lambda_w - delta_w*bar_lambda_w)*(gamma^beta) );
 
@@ -250,7 +252,7 @@ end
 
 P_wU_list = [];
 
-for gamma= 10.^([-5:10]/10)
+for gamma= SINR_vec
     
     B = (pi/sinc(beta))*( delta_w*bar_lambda_w*(p_w.^beta) + delta_c*bar_lambda_c*(p_c^beta) + lambda_z*(p_z^beta) )*((gamma/p_w)^beta);
 
@@ -262,43 +264,119 @@ for gamma= 10.^([-5:10]/10)
 end
 
 %% Plot the Sim CDFs
-figure(1);
+% figure(1);
+% 
+% subplot(2,2,1)
+% plot(10.*log10(SINR_cU_range), 1-P_cU_sim);
+% hold on;
+% plot([-5:10], P_cU_list, 'x');
+% ylabel('P_{c|U}(\gamma)')
+% xlabel('\gamma [dB]')
+% xlim([-5 10])
+% ylim([0 1])
+% 
+% subplot(2,2,2)
+% plot(10.*log10(SINR_cL_range), 1-P_cL_sim);
+% hold on;
+% plot([-5:10], P_cL_list, 'x');
+% ylabel('P_{c|L}(\gamma)')
+% xlabel('\gamma [dB]')
+% xlim([-5 10])
+% ylim([0 1])
+% 
+% subplot(2,2,3)
+% plot(10.*log10(SINR_wU_range), 1-P_wU_sim);
+% hold on;
+% plot([-5:10], P_wU_list, 'x');
+% ylabel('P_{w|U}(\gamma)')
+% xlabel('\gamma [dB]')
+% xlim([-5 10])
+% ylim([0 1])
+% 
+% subplot(2,2,4)
+% plot(10.*log10(SINR_wL_range), 1-P_wL_sim);
+% hold on;
+% plot([-5:10], P_wL_list, 'x');
+% ylabel('P_{w|L}(\gamma)')
+% xlabel('\gamma [dB]')
+% xlim([-5 10])
+% ylim([0 1])
 
-subplot(2,2,1)
-plot(10.*log10(SINR_cU_range), 1-P_cU_sim);
-hold on;
-plot([-5:10], P_cU_list, 'x');
-ylabel('P_{c|U}(\gamma)')
-xlabel('\gamma [dB]')
-xlim([-5 10])
-ylim([0 1])
+%% Overlapped plot
+figure(2);
 
-subplot(2,2,2)
-plot(10.*log10(SINR_cL_range), 1-P_cL_sim);
-hold on;
-plot([-5:10], P_cL_list, 'x');
-ylabel('P_{c|L}(\gamma)')
-xlabel('\gamma [dB]')
-xlim([-5 10])
-ylim([0 1])
 
-subplot(2,2,3)
-plot(10.*log10(SINR_wU_range), 1-P_wU_sim);
+plot([-10:40], P_cU_list, 'color', '#003f5c', 'LineWidth', 2);
 hold on;
-plot([-5:10], P_wU_list, 'x');
-ylabel('P_{w|U}(\gamma)')
-xlabel('\gamma [dB]')
-xlim([-5 10])
-ylim([0 1])
+plot([-10:40], P_cL_list, 'color', '#ef5675', 'LineWidth', 2);
+plot([-10:40], P_wU_list, 'color', '#7a5195', 'LineWidth', 2);
+plot([-10:40], P_wL_list, 'color', '#ffa600', 'LineWidth', 2);
 
-subplot(2,2,4)
-plot(10.*log10(SINR_wL_range), 1-P_wL_sim);
-hold on;
-plot([-5:10], P_wL_list, 'x');
-ylabel('P_{w|L}(\gamma)')
-xlabel('\gamma [dB]')
-xlim([-5 10])
+
+log_vec_range_cU = 10.*log10(SINR_cU_range);
+log_vec_range_cL = 10.*log10(SINR_cL_range);
+log_vec_range_wU = 10.*log10(SINR_wU_range);
+log_vec_range_wL = 10.*log10(SINR_wL_range);
+
+ones_cU = ones(length(SINR_cU_range), 1);
+ones_cL = ones(length(SINR_cL_range), 1);
+ones_wU = ones(length(SINR_wU_range), 1);
+ones_wL = ones(length(SINR_wL_range), 1);
+
+P_cU_sim_points = [];
+P_cL_sim_points = [];
+P_wU_sim_points = [];
+P_wL_sim_points = [];
+
+vecx = [-10:2:40];
+
+for sinr_val = vecx
+    [min_val, index_val] = min( abs( log_vec_range_cU  - sinr_val*ones_cU) );
+    P_cU_sim_points = [P_cU_sim_points; P_cU_sim(index_val) ];
+    
+    [min_val, index_val] = min( abs( log_vec_range_cL  - sinr_val*ones_cL) );
+    P_cL_sim_points = [P_cL_sim_points; P_cL_sim(index_val) ];
+    
+    [min_val, index_val] = min( abs( log_vec_range_wU  - sinr_val*ones_wU) );
+    P_wU_sim_points = [P_wU_sim_points; P_wU_sim(index_val) ];
+    
+    [min_val, index_val] = min( abs( log_vec_range_wL  - sinr_val*ones_wL) );
+    P_wL_sim_points = [P_wL_sim_points; P_wL_sim(index_val) ];  
+    
+end
+
+plot(vecx, 1-P_cU_sim_points , 'ko', 'LineWidth', 1, 'MarkerSize', 6);
+plot(vecx, 1-P_cL_sim_points , 'ko', 'LineWidth', 1, 'MarkerSize', 6);
+plot(vecx, 1-P_wU_sim_points , 'ko', 'LineWidth', 1 ,'MarkerSize', 6);
+plot(vecx, 1-P_wL_sim_points , 'ko', 'LineWidth', 1, 'MarkerSize', 6);
+
+
+xlim([-5 30])
 ylim([0 1])
+xlabel('SINR \gamma [dB]')
+ylabel('Coverage Probability')
+grid on;
+% grid minor;
+box on;
+
+legend('P_{c|U} Cellular unlicensed', 'P_{c|L} Cellular licensed', ...
+    'P_{w|U} WiFi unlicensed', 'P_{w|L} WiFi licensed', 'Simulation' )
+
+%%
+figure(3)
+plot([-10:40], P_cU_list, 'k-', 'LineWidth', 1);
+hold on;
+plot([-10:40], P_cL_list, 'k-', 'LineWidth', 1);
+plot([-10:40], P_wU_list, 'k-', 'LineWidth', 1);
+plot([-10:40], P_wL_list, 'k-', 'LineWidth', 1);
+
+xlim([-5 40])
+ylim([0 1])
+xlabel('SINR \gamma [dB]')
+ylabel('Coverage Probability')
+grid on;
+grid minor;
+box on;
 
 %% Nearest BS distance [Verification: OK]
 % figure(2);

@@ -5,7 +5,7 @@ function [arg_c, arg_w] = arg_min_2d(f, resolution)
     [min2, argmin2] = min(min1);
 
     % Best Response
-    arg_c = (argmin2-1)*resolution;
-    arg_w = (argmin1-1)*resolution;
+    arg_w = (argmin2-1)*resolution;
+    arg_c = (argmin1-1)*resolution;
     
 end

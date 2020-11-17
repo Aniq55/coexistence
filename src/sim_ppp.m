@@ -7,11 +7,11 @@ L = 10*1e3;    % 10 km
 
 
 lambda_z = 1/1e6;   % Backhaul MBS
-lambda_c = 20/1e6;   % cellular SBS
-lambda_w = 40/1e6;   % WiFi APs
+lambda_c = 25/1e6;   % cellular SBS
+lambda_w = 50/1e6;   % WiFi APs
 
-rho = 100;  % radius of the exclusion zone
-rho_w = 20; % radius of the WiFi PCP disk
+rho = 200;  % radius of the exclusion zone
+rho_w = 50; % radius of the WiFi PCP disk
 
 % Transmit powers
 p_z = 2;
@@ -24,8 +24,8 @@ alpha = 3; % path-loss coefficient
 noise_c= 1e-15;
 noise_w= 1e-14;
 
-n_deployments = 100;
-n_iterations = 100;
+n_deployments = 1;
+n_iterations = 1;
 n_observations = n_deployments*n_iterations;
 
 SINR_c = zeros(1, n_observations);
@@ -141,20 +141,27 @@ box on;
 
 
 %% Plot
-% 
-% figure('Position', [10 10 500 500]);
-% hold on;
-% box on;
-% 
-% 
-% viscircles([Xz' Yz'], rho*ones(n_z, 1), 'LineWidth', 1, 'color', 'green'); % exclusion zones
-% 
-% scatter(Xz, Yz, 'k.');
-% scatter(Xc, Yc, 'bo');
-% scatter(Xw, Yw, 'rx');
-% 
-% xlabel("x [m]");
-% ylabel("y [m]");
-% 
-% legend('Incumbent User','Cellular BS','WiFi AP')
+
+figure('Position', [10 10 500 500]);
+hold on;
+box on;
+
+
+viscircles([Xz' Yz'], rho*ones(n_z, 1), ...
+    'LineWidth', 1.5, 'color', '#ffa600'); % exclusion zones
+hold on;
+% viscircles([Xw Yw], rho_w*ones(n_w, 1), ...
+%     'LineWidth', 0.1, 'color', '#ff7c43'); % wifi coverage zones
+
+scatter(Xz, Yz,  '+', 'MarkerEdgeColor', '#58508d');
+scatter(Xc, Yc,  's', 'MarkerEdgeColor', '#003f5c', 'MarkerFaceColor', '#a05195');
+scatter(Xw, Yw,  'o', 'MarkerEdgeColor', '#2f4b7c');
+
+xlabel("x [m]");
+ylabel("y [m]");
+
+xlim([-1e3 1e3])
+ylim([-1e3 1e3])
+
+legend('Incumbent User','Cellular BS','WiFi AP')
 

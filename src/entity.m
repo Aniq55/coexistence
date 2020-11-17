@@ -32,7 +32,7 @@ classdef entity
         function obj = best_response(obj, delta_c_rem, delta_w_rem, ...
                 param, SINR)
             
-            delta_resolution = 0.1;
+            delta_resolution = 0.05;
             delta_range = [0:delta_resolution:1];
             L = length(delta_range);
             f = zeros(L,L);
@@ -54,22 +54,26 @@ classdef entity
                     frac_wU = del_w*param.bar_lambda_w/param.lambda_w;
                     
                     % calculate datarate
-                    if obj.v_c > 0
+                    if obj.v_c ~= 0
                         obj.r_c = (param.B_cU*P_cU*frac_cU ...
                             + param.B_cL*P_cL*(1- frac_cU))*log2(1+ SINR);
                     end
                     
-                    if obj.v_w > 0
+                    if obj.v_w ~= 0
                         obj.r_w = (param.B_wU*P_wU*frac_wU ...
                         + param.B_wL*P_wL*(1- frac_wU))*log2(1+ SINR);
                     end
                     
                     % calculate optimization function value
-                    f(i,j) =  opt_fn1(obj.v_c, obj.v_w, obj.r_c, obj.r_w, ...
-                        obj.r_c_min, obj.r_w_min, obj.theta_c, obj.theta_w);
-                 
-                  
                     
+                    % f_A
+                    f(i,j) =  opt_fn3(obj.v_c, obj.v_w, obj.r_c, obj.r_w, ...
+                        obj.r_c_min, obj.r_w_min, obj.theta_c, obj.theta_w);
+                    
+                    % f_B
+%                     f(i,j) =  opt_fn2(obj.v_c, obj.v_w, obj.r_c, obj.r_w, ...
+%                         obj.r_c_min, obj.r_w_min, del_c, del_w, ...
+%                         obj.theta_c, obj.theta_w);
                 end
             end
              
