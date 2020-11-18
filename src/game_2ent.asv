@@ -86,19 +86,19 @@ while true
         break;
     end    
     
-    if n_iter > 2
+    if n_iter > 4
         break;
         % save the datarates again
     end
     
 end
 
-e1 = e1.update_datarate( e2.v_c*e2.delta_c, e2.v_w*e2.delta_w, param, SINR);
-e2 = e2.update_datarate( e1.v_c*e1.delta_c, e1.v_w*e1.delta_w, param, SINR);
-
 %% Final values
 
 datarate_vals = [e1.r_c, e2.r_c; e1.r_w, e2.r_w]
+
+% Write to a file:
+% v_c1, v_w1, delta_c1, delta_w1, delta_c2, delta_w2, r_c1, r_w1, r_c2, r_w2
 
 %%
 figure('Position', [100 100 900 250]);
@@ -112,7 +112,7 @@ leg1 = legend('\delta_c^1', '\delta_w^1', 'Location','southeast');
 xlabel('iterations')
 ylabel('\delta')
 ylim([0 1]);
-xlim([1, n_iter+1])
+xlim([1, n_iter])
 box on;
 grid on;
 set(gca,'Fontsize', 16);
@@ -125,7 +125,6 @@ leg2 = legend('\delta_c^2', '\delta_w^2', 'Location','southeast');
 xlabel('iterations')
 ylabel('\delta')
 ylim([0 1]);
-xlim([1, n_iter+1])
 box on;
 grid on;
 set(gca,'Fontsize', 16);

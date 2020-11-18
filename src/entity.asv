@@ -32,15 +32,15 @@ classdef entity
         function obj = update_datarate(obj, delta_c_rem, delta_w_rem, ...
                 param, SINR)
             
-            DELTA_C = delta_c_rem + obj.v_c*obj.delta_c;
-            DELTA_W = delta_w_rem + obj.v_w*obj.delta_w;
+            DELTA_C = delta_c_rem + obj.v_c*del_c;
+            DELTA_W = delta_w_rem + obj.v_w*del_w;
 
             % coverage probability
             [P_cL, P_cU, P_wL, P_wU] = param.coverage_probability( SINR, DELTA_C, DELTA_W);
             
             % unclisenced fraction
-            frac_cU = obj.delta_c*param.bar_lambda_c/param.lambda_c;
-            frac_wU = obj.delta_w*param.bar_lambda_w/param.lambda_w;
+            frac_cU = del_c*param.bar_lambda_c/param.lambda_c;
+            frac_wU = del_w*param.bar_lambda_w/param.lambda_w;
 
             % calculate datarate
             if obj.v_c ~= 0
@@ -92,7 +92,7 @@ classdef entity
                     % calculate optimization function value
                     
                     % f_A
-                    f(i,j) =  opt_fn1(obj.v_c, obj.v_w, obj.r_c, obj.r_w, ...
+                    f(i,j) =  opt_fn3(obj.v_c, obj.v_w, obj.r_c, obj.r_w, ...
                         obj.r_c_min, obj.r_w_min, obj.theta_c, obj.theta_w);
                     
                     % f_B
