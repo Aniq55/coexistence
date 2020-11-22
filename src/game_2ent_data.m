@@ -39,7 +39,7 @@ SINR = 10;
 
 %% Writing Data to a file
 
-filename = ['D:\Coexistence\results\game\game_B.csv'];
+filename = ['D:\Coexistence\results\game\game_thresh_05_18.csv'];
 fid = fopen(filename,'wt');
 
 % Header entry: (11 items)
@@ -52,10 +52,19 @@ fprintf(fid,'%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n', ...
 %% Main Loop
 
 r_c_min  = 0.03;
-r_w_min = 0.08;
+r_w_min = 0.01;
 
 share_vector = [0.1: 0.1: 0.9];
 n_entity = 2;
+
+r_c1_min  = 0.05;
+r_w1_min = 0.18;
+
+r_c2_min  = 0.05;
+r_w2_min = 0.18;
+
+theta_c = 7;
+theta_w = 1;
 
 for share_c = share_vector
     for share_w = share_vector
@@ -64,10 +73,10 @@ for share_c = share_vector
         % Defining Entities
         % V_C, V_W, DELTA_C, DELTA_W, R_C_MIN, R_W_MIN, THETA_C, THETA_W
         e1 = entity(share_c, share_w, 0, 0, ...
-            r_c_min,   r_w_min,   1, 1);
+            r_c1_min,   r_w1_min,   theta_c, theta_w);
 
         e2 = entity(1.0-share_c, 1.0 - share_w, 0, 0, ...
-            r_c_min,   r_w_min,   1, 1);
+            r_c2_min,   r_w2_min,   theta_c, theta_w);
 
         % History Vectors
         H_c1 = [0];

@@ -39,7 +39,7 @@ SINR = 10;
 
 %% Writing Data to a file
 
-filename = ['D:\Coexistence\results\game\game3_A.csv'];
+filename = ['D:\Coexistence\results\game\game3_B.csv'];
 fid = fopen(filename,'wt');
 
 % Header entry: (11 items)

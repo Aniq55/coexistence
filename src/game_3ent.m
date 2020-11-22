@@ -39,27 +39,35 @@ SINR = 10;
 
 %% Initializing Entities
 
-r_c_min  = 0.03;
-r_w_min = 0.08;
+r_c1_min  = 0.03;
+r_w1_min = 0.08;
 
-share_c1 = 0.3;
+r_c2_min  = 0.04;
+r_w2_min = 0.1;
+
+r_c3_min  = 0.035;
+r_w3_min = 0.14;
+
+datarate_min = [r_c1_min, r_c2_min, r_c3_min ; r_w1_min, r_w2_min, r_w3_min];
+
+share_c1 = 0.4;
 share_w1 = 0.3;
 
-share_c2 = 0.3;
-share_w2 = 0.3;
+share_c2 = 0.2;
+share_w2 = 0.2;
 
 share_c3 = 1 -(share_c1 + share_c2);
 share_w3 = 1 -(share_w1 + share_w2);
 
 % V_C, V_W, DELTA_C, DELTA_W, R_C_MIN, R_W_MIN, THETA_C, THETA_W
 e1 = entity(share_c1, share_w1, 0, 0, ...
-    r_c_min,   r_w_min,   1, 1);
+    r_c1_min,   r_w1_min,   1, 1);
 
 e2 = entity(share_c2, share_w2, 0, 0, ...
-    r_c_min,   r_w_min,   1, 1);
+    r_c2_min,   r_w2_min,   1, 1);
 
 e3 = entity(share_c3, share_w3, 0, 0, ...
-    r_c_min,   r_w_min,   1, 1);
+    r_c3_min,   r_w3_min,   1, 1);
 
 % History Vectors
 H_c1 = [0];
@@ -130,69 +138,71 @@ e3 = e3.update_datarate( e1.v_c*e1.delta_c + e2.v_c*e2.delta_c, ...
 datarate_vals = [e1.r_c, e2.r_c, e3.r_c; e1.r_w, e2.r_w, e3.r_w]
 
 %%
-figure('Position', [100 100 1200 250]);
-font_size_val = 14;
-
-subplot(1,4,1)
-plot([1:n_iter+1], H_c1, 'x--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
-hold on;
-plot([1:n_iter+1], H_w1, 's--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
-leg1 = legend('\delta_c^1', '\delta_w^1', 'Location','southeast');
-xlabel('iterations')
-ylabel('\delta')
-ylim([0 1]);
-xlim([1, n_iter+1])
-box on;
-grid on;
-set(gca,'Fontsize', font_size_val);
-
-subplot(1,4,2)
-plot([1:n_iter+1], H_c2, 'x--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
-hold on;
-plot([1:n_iter+1], H_w2, 's--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
-leg2 = legend('\delta_c^2', '\delta_w^2', 'Location','southeast');
-xlabel('iterations')
-ylabel('\delta')
-ylim([0 1]);
-xlim([1, n_iter+1])
-box on;
-grid on;
-set(gca,'Fontsize', font_size_val);
-
-subplot(1,4,3)
-plot([1:n_iter+1], H_c3, 'x--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
-hold on;
-plot([1:n_iter+1], H_w3, 's--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
-leg2 = legend('\delta_c^3', '\delta_w^3', 'Location','southeast');
-xlabel('iterations')
-ylabel('\delta')
-ylim([0 1]);
-xlim([1, n_iter+1])
-box on;
-grid on;
-set(gca,'Fontsize', font_size_val);
-
-subplot(1,4,4)
-
-X = categorical({'cellular','WiFi'});
-X = reordercats(X,{'cellular','WiFi'});
-b = bar(X,datarate_vals*1e3, 'FaceColor', 'flat');
-ylabel('datarate [Mbps]')
-xlabel('network')
-
-b(1).FaceColor = '#58508d';
-b(2).FaceColor = '#ff6361';
-b(3).FaceColor = '#ffa600';
-grid on;
-box on;
-leg3  = legend('e_1', 'e_2', 'e_3', 'Location', 'northwest')
-set(gca,'Fontsize', font_size_val);
+% figure('Position', [100 100 1200 250]);
+% font_size_val = 14;
+% 
+% subplot(1,4,1)
+% plot([1:n_iter+1], H_c1, 'x--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
+% hold on;
+% plot([1:n_iter+1], H_w1, 's--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
+% leg1 = legend('\delta_c^1', '\delta_w^1', 'Location','southeast');
+% xlabel('iterations')
+% ylabel('\delta')
+% ylim([0 1]);
+% xlim([1, n_iter+1])
+% box on;
+% grid on;
+% set(gca,'Fontsize', font_size_val);
+% 
+% subplot(1,4,2)
+% plot([1:n_iter+1], H_c2, 'x--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
+% hold on;
+% plot([1:n_iter+1], H_w2, 's--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
+% leg2 = legend('\delta_c^2', '\delta_w^2', 'Location','southeast');
+% xlabel('iterations')
+% ylabel('\delta')
+% ylim([0 1]);
+% xlim([1, n_iter+1])
+% box on;
+% grid on;
+% set(gca,'Fontsize', font_size_val);
+% 
+% subplot(1,4,3)
+% plot([1:n_iter+1], H_c3, 'x--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
+% hold on;
+% plot([1:n_iter+1], H_w3, 's--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
+% leg2 = legend('\delta_c^3', '\delta_w^3', 'Location','southeast');
+% xlabel('iterations')
+% ylabel('\delta')
+% ylim([0 1]);
+% xlim([1, n_iter+1])
+% box on;
+% grid on;
+% set(gca,'Fontsize', font_size_val);
+% 
+% subplot(1,4,4)
+% 
+% X = categorical({'cellular','WiFi'});
+% X = reordercats(X,{'cellular','WiFi'});
+% b = bar(X,datarate_vals*1e3, 'FaceColor', 'flat');
+% ylabel('datarate [Mbps]')
+% xlabel('network')
+% 
+% b(1).FaceColor = '#58508d';
+% b(2).FaceColor = '#ff6361';
+% b(3).FaceColor = '#ffa600';
+% grid on;
+% box on;
+% leg3  = legend('e_1', 'e_2', 'e_3', 'Location', 'northwest')
+% set(gca,'Fontsize', font_size_val);
 
 %%
-figure('Position', [100 100 1000 250]);
-font_size_val = 13;
+figure('Position', [100 100 1500 250]);
+font_size_val = 14;
 
-subplot(1,4,1)
+
+
+subplot(1,5,1)
 plot([1:n_iter+1], H_c1, 'x--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
 hold on;
 plot([1:n_iter+1], H_w1, 's--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
@@ -205,7 +215,7 @@ box on;
 grid on;
 set(gca,'Fontsize', font_size_val);
 
-subplot(1,4,2)
+subplot(1,5,2)
 plot([1:n_iter+1], H_c2, 'x--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
 hold on;
 plot([1:n_iter+1], H_w2, 's--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
@@ -218,7 +228,7 @@ box on;
 grid on;
 set(gca,'Fontsize', font_size_val);
 
-subplot(1,4,3)
+subplot(1,5,3)
 plot([1:n_iter+1], H_c3, 'x--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
 hold on;
 plot([1:n_iter+1], H_w3, 's--', 'color', '#ffa600', 'LineWidth', 1.5, 'MarkerSize', 10)
@@ -231,10 +241,30 @@ box on;
 grid on;
 set(gca,'Fontsize', font_size_val);
 
-subplot(1,4, 4)
+
+subplot(1,5,4)
+X = categorical({'cellular','WiFi'});
+X = reordercats(X,{'cellular','WiFi'});
+b3 = bar(X,[e1.v_c, e2.v_c, e3.v_c; e1.v_w, e2.v_w, e3.v_w], 0.5, ...
+    'stacked', 'FaceColor', 'flat');
+b3(1).FaceColor = '#58508d';
+b3(2).FaceColor = '#ff6361';
+b3(3).FaceColor = '#ffa600';
+ylabel('share')
+xlabel('network')
+
+box on;
+leg4  = legend('e$$_1$$', 'e$$_2$$', 'e$$_3$$', 'Interpreter','Latex', ...
+    'Location', 'northoutside', 'Orientation', 'horizontal')
+set(gca,'Fontsize', font_size_val);
+
+subplot(1,5, 5)
 X = categorical({'cellular','WiFi'});
 X = reordercats(X,{'cellular','WiFi'});
 b = bar(X,datarate_vals*1e3, 'FaceColor', 'flat');
+hold on;
+b2 = bar(X,datarate_min*1e3, 0.25,'FaceColor','k');
+
 
 xlabel('network')
 ylabel('datarate [Mbps]')
@@ -244,7 +274,9 @@ b(2).FaceColor = '#ff6361';
 b(3).FaceColor = '#ffa600';
 grid on;
 box on;
-leg3  = legend('e_1', 'e_2', 'e_3', 'Location', 'northwest')
+leg3  = legend('e$$_1$$', 'e$$_2$$', 'e$$_3$$', '$$\hat{\sigma}$$', 'Interpreter','Latex', 'Location', 'northwest')
 set(gca,'Fontsize', font_size_val);
+
+
 
 

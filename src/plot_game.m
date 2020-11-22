@@ -1,8 +1,14 @@
-T =  readtable('D:\Coexistence\results\game\game_B.csv');
+T =  readtable('D:\Coexistence\results\game\game_A_7.csv');
 T.r_c1 = T.r_c1*1e3;
 T.r_w1 = T.r_w1*1e3;
 T.r_c2 = T.r_c2*1e3;
 T.r_w2 = T.r_w2*1e3;
+
+% T2 =  readtable('D:\Coexistence\results\game\game_B.csv');
+% T2.r_c1 = T2.r_c1*1e3;
+% T2.r_w1 = T2.r_w1*1e3;
+% T2.r_c2 = T2.r_c2*1e3;
+% T2.r_w2 = T2.r_w2*1e3;
 
 color_vec5 = ["#003f5c","#58508d","#bc5090","#ff6361","#ffa600",];
 
@@ -90,5 +96,43 @@ set(gca,'Fontsize', 16);
 % grid on;
 
 %%
+% figure('Position', [100 100 1000 300]);
+% font_size_val = 16;
+% subplot(1,2,1)
+% hold on;
+% 
+% [h, x] = ecdf(T.r_c1);
+% plot(x,h, 'x-', 'LineWidth', 2, 'color', '#003f5c')
+% 
+% [h, x] = ecdf(T2.r_c1);
+% plot(x,h, 's--', 'LineWidth', 2, 'color', '#ffa600')
+% 
+% 
+% xlabel('average cellular datarate \sigma_c^i [Mbps]')
+% ylabel('empirical cdf')
+% % xlim([30, 42])
+% set(gca,'Fontsize', font_size_val);
+% box on;
+% grid on;
+% legend('f^A', 'f^B', 'Location', 'southeast')
+% 
+% 
+% subplot(1,2,2)
+% hold on;
+% 
+% [h, x] = ecdf(T.r_w1);
+% plot(x,h, 'x-', 'LineWidth', 2, 'color', '#003f5c')
+% 
+% [h, x] = ecdf(T2.r_w1);
+% plot(x,h, 's--', 'LineWidth', 2, 'color', '#ffa600')
+% 
+% 
+% xlabel('average WiFi datarate \sigma_w^i [Mbps]')
+% ylabel('empirical cdf')
+% % xlim([140, 200])
+% set(gca,'Fontsize', font_size_val);
+% box on;
+% grid on;
+% legend('f^A', 'f^B', 'Location', 'southeast')
 
 

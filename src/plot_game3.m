@@ -1,4 +1,4 @@
-T =  readtable('D:\Coexistence\results\game\game3_A.csv');
+T =  readtable('D:\Coexistence\results\game\game3_B.csv');
 T.r_c1 = T.r_c1*1e3;
 T.r_w1 = T.r_w1*1e3;
 T.r_c2 = T.r_c2*1e3;
@@ -103,3 +103,66 @@ xlabel('v_w^1')
 ylabel('v_w^2')
 title(h, '\sigma_w^3')
 set(gca,'Fontsize', 16);
+
+%%
+figure('Position', [100 100 500 470]);
+
+
+h = heatmap( T,'v_c1','v_c2','ColorVariable','del_c1', 'CellLabelColor','none');
+xlabel('v_w^1')
+ylabel('v_w^2')
+title(h, '\sigma_c^1')
+set(gca,'Fontsize', 16);
+
+%%
+figure('Position', [100 100 1000 300]);
+
+subplot(1,2,1)
+hold on;
+
+[h, x] = ecdf(T.r_c1);
+plot(x,h, '--', 'LineWidth', 2, 'color', '#003f5c')
+
+[h, x] = ecdf(T.r_c2);
+plot(x,h, '.-', 'LineWidth', 2, 'color', '#7a5195')
+
+[h, x] = ecdf(T.r_c3);
+plot(x,h, '--', 'LineWidth', 2, 'color', '#ef5675')
+
+xlabel('average cellular datarate \sigma_c^i [Mbps]')
+ylabel('empirical cdf')
+xlim([30, 42])
+set(gca,'Fontsize', 12);
+box on;
+grid on;
+
+legend('e_1', 'e_2', 'e_3', 'Location', 'northwest')
+
+
+subplot(1,2,2)
+hold on;
+
+[h, x] = ecdf(T.r_w1);
+plot(x,h, '--', 'LineWidth', 2, 'color', '#003f5c')
+
+[h, x] = ecdf(T.r_w2);
+plot(x,h, '.-', 'LineWidth', 2, 'color', '#7a5195')
+
+[h, x] = ecdf(T.r_w3);
+plot(x,h, '--', 'LineWidth', 2, 'color', '#ef5675')
+
+xlabel('average WiFi datarate \sigma_w^i [Mbps]')
+ylabel('empirical cdf')
+xlim([140, 200])
+set(gca,'Fontsize', 12);
+box on;
+grid on;
+
+legend('e_1', 'e_2', 'e_3', 'Location', 'northwest')
+
+
+
+
+
+
+

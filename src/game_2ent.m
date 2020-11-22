@@ -39,18 +39,27 @@ SINR = 10;
 
 %% Initializing Entities
 
-r_c_min  = 0.03;
-r_w_min = 0.08;
+r_c1_min  = 0.05;
+r_w1_min = 0.1;
 
-share_c = 1.0;
-share_w = 0.0;
+r_c2_min  = 0.03;
+r_w2_min = 0.14;
+
+share_c = 0.2;
+share_w = 0.6;
+
+theta_c = 5;
+theta_w = 1;
+
+
+datarate_min = [r_c1_min, r_c2_min ; r_w1_min, r_w2_min];
 
 % V_C, V_W, DELTA_C, DELTA_W, R_C_MIN, R_W_MIN, THETA_C, THETA_W
 e1 = entity(share_c, share_w, 0, 0, ...
-    r_c_min,   r_w_min,   1, 1);
+    r_c1_min,   r_w1_min,   theta_c, theta_w);
 
 e2 = entity(1.0-share_c, 1.0 - share_w, 0, 0, ...
-    r_c_min,   r_w_min,   1, 1);
+    r_c2_min,   r_w2_min,   theta_c, theta_w);
 
 % History Vectors
 H_c1 = [0];
@@ -82,11 +91,11 @@ while true
         + abs(H_w2(end) - H_w2(end-1));
    
     % convergence condition
-    if equilibrium == 0 
-        break;
-    end    
+%     if equilibrium == 0 
+%         break;
+%     end    
     
-    if n_iter > 2
+    if n_iter > 3
         break;
         % save the datarates again
     end
@@ -101,48 +110,80 @@ e2 = e2.update_datarate( e1.v_c*e1.delta_c, e1.v_w*e1.delta_w, param, SINR);
 datarate_vals = [e1.r_c, e2.r_c; e1.r_w, e2.r_w]
 
 %%
-figure('Position', [100 100 900 250]);
+
+color1 = "#665191";
+color2 = "#f95d6a";
+
+font_size_val = 12;
+figure('Position', [100 100 1000 250]);
 
 
-subplot(1,3,1)
-plot([1:n_iter+1], H_c1, 'x--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
-hold on;
-plot([1:n_iter+1], H_w1, 's--', 'color', '#58508d', 'LineWidth', 1.5, 'MarkerSize', 10)
-leg1 = legend('\delta_c^1', '\delta_w^1', 'Location','southeast');
-xlabel('iterations')
-ylabel('\delta')
-ylim([0 1]);
-xlim([1, n_iter+1])
-box on;
-grid on;
-set(gca,'Fontsize', 16);
-
-subplot(1,3,2)
-plot([1:n_iter+1], H_c2, 'x--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
-hold on;
-plot([1:n_iter+1], H_w2, 's--', 'color', '#ff6361', 'LineWidth', 1.5, 'MarkerSize', 10)
-leg2 = legend('\delta_c^2', '\delta_w^2', 'Location','southeast');
-xlabel('iterations')
-ylabel('\delta')
-ylim([0 1]);
-xlim([1, n_iter+1])
-box on;
-grid on;
-set(gca,'Fontsize', 16);
-
-subplot(1,3,3)
+subplot(1,4,1)
 
 X = categorical({'cellular','WiFi'});
 X = reordercats(X,{'cellular','WiFi'});
-b = bar(X,datarate_vals*1e3, 'FaceColor', 'flat');
+b3 = bar(X,[e1.v_c, e2.v_c; e1.v_w, e2.v_w], 0.5, ...
+    'stacked', 'FaceColor', 'flat');
+b3(1).FaceColor = color1;
+b3(2).FaceColor = color2;
+ylabel('share')
+xlabel('network')
+
+box on;
+% leg4  = legend('e_1', 'e_2', 'e_3', 'Location', 'northeastoutside', 'Orientation', 'vertical')
+set(gca,'Fontsize', font_size_val);
+leg3  = legend('e$$_1$$', 'e$$_2$$', 'Interpreter','Latex',...
+    'Location', 'northoutside', 'Orientation', 'horizontal' )
+
+subplot(1,4,2)
+plot([1:n_iter+1], H_c1, 'x--', 'color', color1, 'LineWidth', 1.5, 'MarkerSize', 10)
+hold on;
+plot([1:n_iter+1], H_w1, 's--', 'color', color1, 'LineWidth', 1.5, 'MarkerSize', 10)
+leg1 = legend('\delta_c^1', '\delta_w^1', ...
+    'Location', 'northoutside', 'Orientation', 'horizontal');
+xlabel('iterations')
+% ylabel('\delta')
+ylim([0 1]);
+xlim([1, n_iter+1])
+box on;
+grid on;
+set(gca,'Fontsize', font_size_val);
+
+
+subplot(1,4,3)
+plot([1:n_iter+1], H_c2, 'x--', 'color', color2, 'LineWidth', 1.5, 'MarkerSize', 10)
+hold on;
+plot([1:n_iter+1], H_w2, 's--', 'color', color2, 'LineWidth', 1.5, 'MarkerSize', 10)
+leg2 = legend('\delta_c^2', '\delta_w^2', ... 
+    'Location', 'northoutside', 'Orientation', 'horizontal');
+xlabel('iterations')
+% ylabel('\delta')
+ylim([0 1]);
+xlim([1, n_iter+1])
+box on;
+grid on;
+set(gca,'Fontsize', font_size_val);
+
+
+
+
+
+subplot(1,4,4)
+
+X = categorical({'cellular','WiFi'});
+X = reordercats(X,{'cellular','WiFi'});
+b = bar(X,datarate_vals*1e3, 1, 'FaceColor', 'flat');
+hold on;
+b2 = bar(X,datarate_min*1e3, 0.25,'FaceColor','k');
 ylabel('datarate [Mbps]')
 xlabel('network')
 
-b(1).FaceColor = '#58508d';
-b(2).FaceColor = '#ff6361';
+b(1).FaceColor = color1;
+b(2).FaceColor = color2;
 grid on;
 box on;
-leg3  = legend('e_1', 'e_2', 'Location', 'northwest')
-set(gca,'Fontsize', 16);
+leg3  = legend('e$$_1$$', 'e$$_2$$', '$$\hat{\sigma}$$', 'Interpreter','Latex', 'Location', 'northwest')
+set(gca,'Fontsize', font_size_val);
+set(gca,'Fontsize', font_size_val);
 
 
